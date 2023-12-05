@@ -1,0 +1,14 @@
+{
+  "name": "@kkokk/captcha",
+  "version": "1.0.0",
+  "description": "captcha slider",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "captcha"
+  ],
+  "author": "kkokk",
+  "license": "ISC"
+}
