@@ -51,13 +51,6 @@ export default {
       options: {}
     }
   },
-  created()
-  {
-    this.loading = true
-    setTimeout(() => {
-      this.loading = false
-    }, 1000)
-  },
   methods: {
     // 打开触发
     open() {
