@@ -10,5 +10,13 @@
     "captcha"
   ],
   "author": "kkokk",
-  "license": "ISC"
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkokk/vue-captcha.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kkokk/vue-captcha/issues"
+  },
+  "homepage": "https://github.com/kkokk/vue-captcha#readme"
 }
