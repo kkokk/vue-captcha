@@ -1,5 +1,5 @@
 # vue-captcha
-配合仓库 [poster](https://gitee.com/langlanglang/poster) 一起使用的行为验证 vue 版本，目前版本是 1.0.0
+配合仓库 [poster](https://github.com/kkokk/poster) 一起使用的行为验证 vue 版本，目前版本是 1.0.0
 
 ## 使用文档
 
