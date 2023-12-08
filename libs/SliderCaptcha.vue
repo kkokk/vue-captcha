@@ -14,8 +14,15 @@
             <div class="loading slider-loading"></div>
           </div>
           <div class="slider-bg slider-img" :style="{'background-image': 'url(' + sliderImg + ')'}" v-show="!loading"></div>
-          <div class="slider-draw slider-move-draw slider-move slider-img"
-            style="display: block;"  :style="{'background-image': 'url(' + sliderImg + ')', 'top': sliderY + 'px', 'left': sliderMoveDrawLeft}"  v-show="!loading">
+          <div
+            class="slider-draw slider-move-draw slider-img"
+						:style="{'background-image': 'url(' + sliderImg + ')', 'top': sliderY + 'px', 'left': sliderMoveDrawLeft}"
+						v-show="!loading"
+						@touchstart.stop="sliderTouchStart"
+						@touchmove.catch="sliderTouchMove"
+						@touchend.stop="sliderEnd"
+						@mousedown="sliderStart"
+						>
           </div>
           <div class="slider-progress"></div>
           <div class="slider-success" v-show="success">
@@ -24,21 +31,39 @@
                 alt=""> </div>
             <div class="slider-success-text"><slot name="successText">{{successText}}</slot></div>
           </div>
-          <div class="slider-btn slider-move-btn slider-move" :style="{'left': sliderMoveLeft}" :class="{'slider-shock':shock}"> <i>&nbsp;</i> <img
-              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAcAgMAAABuexVFAAAACVBMVEUAAADCwsL9/f1P0DqbAAAAAXRSTlMAQObYZgAAAB1JREFUGNNjCGVgYGANABKhyMwoEHMBkIgaZWIwAdyJJQnaJRg5AAAAAElFTkSuQmCC"
-              alt=""> <i>&nbsp;</i> </div>
+          <div
+            class="slider-btn slider-move-btn"
+						:style="{'left': sliderMoveLeft}" 
+						:class="{'slider-shock':shock}"
+						@touchstart.stop="sliderTouchStart"
+						@touchmove.stop="sliderTouchMove"
+						@touchend.stop="sliderEnd"
+						@mousedown="sliderStart"
+					>
+            <i>&nbsp;</i>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAcAgMAAABuexVFAAAACVBMVEUAAADCwsL9/f1P0DqbAAAAAXRSTlMAQObYZgAAAB1JREFUGNNjCGVgYGANABKhyMwoEHMBkIgaZWIwAdyJJQnaJRg5AAAAAElFTkSuQmCC" alt="">
+            <i>&nbsp;</i>
+          </div>
         </div>
         <div style="position:relative;">
-          <div class="slider-refresh" style="font-size: 29px;">
+          <div class="slider-refresh" style="font-size: 29px;" @click.stop="" @mouseenter="questionMessage = true" @mouseleave="questionMessage = false">
             <div class="slider-tools-btn lang-tips">
-              <div class="lang-tips-item lang-tips-bottom"> 拖动滑块完成拼图，欢迎提建议！<a href="https://gitee.com/langlanglang/poster" target="_blank">gitee</a> <a
-                  href="https://github.com/kkokk/poster" target="_blank">github</a> </div>
+              <div class="lang-tips-item lang-tips-bottom" v-show="questionMessage">
+                <slot name="question">
+									<div v-if="question">{{question}}</div>
+									<div v-else>
+										拖动滑块完成拼图，欢迎提建议！
+											<a href="https://gitee.com/langlanglang/poster" target="_blank">gitee</a>
+											<a href="https://github.com/kkokk/poster" target="_blank">github</a>
+									</div>
+								</slot>
+              </div>
               <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAVgSURBVHgBzVrZUdxMEG7EcjzuH8EvIvA6Ai8ZmAhgqziLByACRASGB4qzChwBZOAlgl1HYDmDfaIoTn/ferQlNSNpRpJd/qrG8s7ZPdPT1zAlDeDq6qr98PDweWpqqoPyP6o6KG1TEsRoi19fX7/jO8D3bmtrK5aamJKKINHPz887b29vXRapADAyxNjDOsx4M5AQjkV3JbvDtQBmrl9eXg58GfFi4OLiYr9pwjWCIIjW1tYOXPs7MXBychJOT0/f4Lg7eX3Q1seH8t0Hk8P5+flRr9cbsY2ndn9/H7ZarRBtvCefULoFS/KuLLqcRikDl5eXyzjaQ7Hv+ggLHYHYw4RYV3BT8Olix/fxDW1zo/Q2NjZui+YpZMCITJQz+QEmP5QGAGZW8hgpE6lcBvKIh6gczc3NRb47XgZzIhEIXtZtRUxYGTg7O/uMz42laa+pXc8D1qaS+KLrcQdXVldXv+r6dwxwJ8DxQLIyT1lfwqXqy1/A8fFxBxf+m4WGj/pit/RgEK8HCvT+4vb29lAcQa3z9PQU4vInWiv2YZ5rYSOXDC0J2tSE+H5M982cQI7cO4tNiZEbQXXe+hgrmzhhbo6PRDNgROdHujOt4/r6ek8cYI6dOxSWdKVPtIR5nU709PT0EP13UlWj2dnZhUSJBKmGSC/E3RIHkHkjs6FD9xCa7Nv5+XnHoa9Q48lvtZ2AjuNu8iNICLCor8j1qG33houC0GsUGqJYtbVRfyMOMDt9oNbbobiO/2/qumpcDLn/Kg6gERK187QVGP/f5uZmD2UJ/1+g7KqhIWR82WUNcwetpzBmgBypMZE4ApohQwTvDYje1f148ciY6rsijqDLotb9xG9gLGBHdb4TR1gcvKO8vtio65KxuaC/pcZ2KUY8ga5q6Hv65BnZL9IuljZnt5x3gZ5uuo5RYMAwMF0JBpx3n1CTFqpGc9ppePlTDEfV2h2cavBBVQ7EA1C1Pco2C92Nor5QtZn7gjHO1t3Q1ldVYQuThOkaMPRTPGDEbbesH3a/q608L7x4gIES6EuP/0BfKEx3mpmZiaUhkGjOT01lCfxjH2VBMMp7fHxMV7UD3akpPx86/gsNHMpVTtYi8g3gLbS9Z6BB5IoVjZqroSwDGchwlZjoPwGqaBOsR1IBNtp4B8jApAG6tS2e6s0FhvC+1ABjDFUV8wQyqow3W/4AmojmtMbE7zjAP1ptLso/CuaUVNX3QBsTbdiqwsdCuyJx4FJrDALo1tt0ZeIkSU34WGgX0A3R6ph2pEXdiuion240vnYkNeBqoT3QVb+HXGOclcBu3UF0Jh1MfBBJDSRvBphrVJYedIHJ3KUxdq/Hhsz42pmIx2QEKoHEw+QPaIXx8wZz/agjlraoL3FDxgxQjHTEA+xXXZQ7rxYMwdCKVICJ1zO7TycwcUMmroTtFLDovlQA7lOT1jwStfvpbMmEgZxT2K0iSkxgSXYzOLf3PYBy2dHZEpPYiidr6UEgmAGNjpG93QAePRgZM893MF/P0yTKdHDFbMlCusI5uQtiFl2zaXXBOAI03IhDcvedO80O6LinqpmIGtTRTK4wYmNLlPVsp5j7wIFdiCy6t/JrYhmM6uV67zZJJ3Qz9EgB8piQ36nCqKmghLuOE47EkmYpIp4ofeQzrzVXYs/hxChRlYdqh/dmyvwe5r0umsf5mdXIZZg7EbxP45IM+ScFTA6kn1kZKKGtQ5+LHm/R6z5f8DHXUiPPrIqRPJFqCmNb5BNyev+pQdFrYg1Ufm+u/MceqYdqeq4dqQAG+UxlViE8QWUG0kiYMXlWRnS0wmGqCx87SCAN4U9GgQykmshB/QKLND1fMNqj0gAAAABJRU5ErkJggg==">
             </div>
           </div>
-          <div class="slider-refresh" style="left: 35px;">
+          <div class="slider-refresh" style="left: 35px;" @click.stop="refresh" @mouseenter="refreshMessage = true" @mouseleave="refreshMessage = false">
             <div class="slider-tools-btn lang-tips" style="width:24px;height: 24px;" @click="refresh"> <!-- 刷新 -->
-              <div class="lang-tips-item lang-tips-bottom"> 刷新</div>
+              <div class="lang-tips-item lang-tips-bottom" v-show="refreshMessage"> 刷新</div>
               <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAPZSURBVHgB7VpLTuNAEC2b8NlNboDnBJgbJCdgOAFkAQixGDgB9gkIC4T4SIETTOYEhBOQOcF4buAVQojPvGfZGbv9iWMbE0vzpMam3e7Uq66u7q6yJhXh/PzcwKWjaZqJsop7E6XtF8JlwTPn7e3tF64jXMf7+/uOlIAmJTAYDNovLy/f39/fOyxSACSCd29A5r4ImUIEfG1buq5vyD8NlwbI3Ly+vtp5iFAGtpuJQKBxaOtQKhRcgQvF9Hd2duy0BldXV8eQQwMBKzeBs7Mzs9Vq/cCtkdYGpkBzuIcAY9r3ysqK2+v1aPse+cfHRwN9GL65rUHjnYyf5FzpqqNB4VFvodi5CVxeXtLOLUnWuoNn/eXl5dtA2LwIJj4IH0uyYthfb29vbxgWnve5CYRfUgVHsdD5rVQAkNnOIHKEZ1/CcgQE9KxO04SHxk+XlpbWqxKegDD0RF2UpD5PUpQoLUkBzSbhJRd1R/wx+QD49r6N0XD80ZiKxBGgbdKulWoXM7/7UcKHQdOAonp52sYI0FuA/Z1S7Ql/cHAwlpoAb7Wap12MAP28xCeSXafwGY4jhggBmo76IicsJmtfasIswhPqCFjK/w78uyU1YVbhiYkXovZh+1vKc2vWxako+PvcHuDWzvnKiH+0UAeW4rocmM5XmXNMTChJ+9IAeASwaPHwYYQfYKX9KQ2ARwB7cDNcyV1lXbZfFh4B/2AyAba5jdA+4RGAwJFtMvfy0hB4BGAyplLvSEMQeKHICJSNFNQJXRqO/wQ+GwGBiM/3D9uNQEDAUeoNaQg8AoxVRip13ZSGIFgHIgsXFrYNaQiClXgYruTCxrOxNAAeAX/hckL17efn521pACZuVA0oNcWMJgQQiI0c3BmAvbi4+CZzjgkB7v8Twnon8z4XpkUlDMyFXCG+z0KEACczo75Km8Pr6+stmVPEwus0GWj9QaKrMZNz3d3d3VoPOkyq+IvqKG2LH9vMcS4gPrMp0f1RG5P6zj/81wKOOuKjDyAwQPmN/VknqV3ibtSPg6qm5JGAZzqUDwZD+wg03CjVnaS2mRmahGBXgD7CLnbVkQvffAe4jblvmPB6kglPTTFlkHCkohRTjuznUVqAOVeSzzebk5THDopVJFGdQ/BIki8JudOsfvCXiQ8jtTNk3WG797gdLSwsuIuLi044zfr09MTkiclVHte1rOw++hqjr81pSpk5U59hUlWBhO28OYmynxpUucBxK3PKPdkszqHUxx6hRDXTUoXWCMZhcRkWSZQTpQiEEf7cBtc1FAP3RqiJC2EpIF3hH54Coe1hWVf8FxUNF4vY5AiIAAAAAElFTkSuQmCC">
             </div>
           </div>
@@ -52,14 +77,14 @@
 export default {
   name: 'SliderCaptcha',
   props:
- {
+  {
     value: {
       type: Boolean,
       defalut: false
     },
-    status: { // 验证状态 0 失败 1待验证 2成功
-      type: Number,
-      defalut: 1
+    modelValue: {
+      type: Boolean,
+      defalut: false
     },
     loading: {
       type: Boolean,
@@ -81,6 +106,10 @@ export default {
       type: String,
       default: '是不是太难了，咱换一个'
     },
+		question: {
+			type: String,
+			default: ''
+		},
     options: {
       type: Object,
       default() {
@@ -95,10 +124,13 @@ export default {
   watch: {
     value: {
       handler: function(val) {
-        this.dialogVisible = val
-        if (val) {
-          this.init()
-        }
+        this.init(val)
+      },
+      immediate: true
+    },
+    modelValue: {
+      handler: function(val) {
+        this.init(val)
       },
       immediate: true
     },
@@ -126,17 +158,19 @@ export default {
       sliderMoveDrawLeft: '27px',
       sliderMoveLeft: '20px',
       shock: false,
-      tipEvents: {}
+      tipEvents: {},
+			sliderMoveX: 0,
+			questionMessage: false,
+			refreshMessage: false,
     }
   },
   methods: {
-    init()
+    init(open)
     {
-      this.clear()
-      this.$nextTick(() => {
-        this.loadMove()
-        this.loadTips()
-      })
+      this.dialogVisible = open
+      if (open) {
+        this.clear()
+      }
     },
     clear() {
       this.mask = false
@@ -169,118 +203,61 @@ export default {
     close() {
       this.dialogVisible = false
       this.$emit('input', this.dialogVisible)
+      this.$emit('update:modelValue', this.dialogVisible)
       this.$emit('close')
     },
     refresh()
     {
       this.$emit('refresh')
     },
-    loadMove()
-    {
-      const that = this
-      const sliderMove = document.querySelectorAll(".slider-move");
-
-      for (let i = 0; i < sliderMove.length; i++) {
-          sliderMove[i].ontouchstart = function(e) {
-              /* 移动触摸移动 */
-              const slider = e.target;
-              const x = e.touches[0].clientX - slider.offsetLeft;
-              document.ontouchmove = (e)=>{
-                  const left = e.touches[0].clientX - x;
-                  if (left >= 20 && left <= 280) {
-                      that.sliderMoveDrawLeft = 5 + left + 'px';
-                      that.sliderMoveLeft = left + 'px';
-                      that.sliderX = 5 + left;
-                  }
-              };
-              document.ontouchend = (e)=>{
-                  document.ontouchmove = null;
-                  document.ontouchend = null;
-                  that.check(that.sliderKey, that.sliderX);
-              };
-          };
-          sliderMove[i].onmousedown = function(e) {
-              const slider = e.target;
-              /* 获取目标元素 */
-              /* 算出鼠标相对元素的位置 */
-              const x = e.clientX - slider.offsetLeft;
-              document.onmousemove = (e)=>{
-                  const left = e.clientX - x;
-                  if (left >= 20 && left <= 280) {
-                    that.sliderMoveDrawLeft = 5 + left + 'px';
-                    that.sliderMoveLeft = left + 'px';
-                    that.sliderX = 5 + left;
-                  }
-              };
-              document.onmouseup = (e)=>{
-                  document.onmousemove = null;
-                  document.onmouseup = null;
-                  that.check(that.sliderKey, that.sliderX);
-              };
-          };
-      }
-    },
-    loadTips() {
-        const that = this;
-        const sliderTips = document.querySelectorAll(".lang-tips");
-        for (let i = 0; i < sliderTips.length; i++) {
-            sliderTips[i].onmouseenter = (e)=>{
-                /* 隐藏其他tips */
-                for (let j = 0; j < sliderTips.length; j++) {
-                    if (i != j) {
-                        that.getByClass('lang-tips-item', sliderTips[j])[0].style.display = 'none';
-                    }
-                }
-                clearTimeout(that.tipEvents[i]);
-                const item = that.getByClass('lang-tips-item', sliderTips[i])[0];
-                item.style.display = 'block';
-                /* item.style.marginLeft = -(item.clientWidth/2) + 12.5 + 'px'; */
-                item.style.marginLeft = '-8px';
-            }
-            ;
-            sliderTips[i].onmouseleave = (e)=>{
-                clearTimeout(that.tipEvents[i]);
-                const item = that.getByClass('lang-tips-item', sliderTips[i])[0];
-                that.tipEvents[i] = setTimeout(function() {
-                    item.style.display = 'none';
-                }, 500);
-            }
-            ;
-        }
-    },
-    hasClass(ele, cls) {
-        return !!ele.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'));
-    },
-    addClass(ele, cls) {
-        if (!this.hasClass(ele, cls))
-            ele.className += ' ' + cls;
-    },
-    removeClass(ele, cls) {
-        if (this.hasClass(ele, cls)) {
-            const reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
-            ele.className = ele.className.replace(reg, ' ');
-        }
-    },
-    getByClass(cls, ele) {
-        ele = ele || document.body;
-        var arr = [];
-        var tags = ele.getElementsByTagName('*');
-        for (var i = 0; i < tags.length; i++) {
-            var classArr = tags[i].className.split(' ');
-            for (var j = 0; j < classArr.length; j++) {
-                if (classArr[j] === cls) {
-                    arr.push(tags[i]);
-                    break;
-                }
-            }
-        }
-        return arr;
-    }
+    sliderTouchStart(e) {
+			// 移动触摸移动
+			const that = this
+			const slider = e.target
+			that.sliderMoveX = e.touches[0].clientX - slider.offsetLeft
+		},
+		sliderTouchMove(e) {
+			const that = this
+			const left = e.touches[0].clientX - that.sliderMoveX
+			if (left >= 20 && left <= 280) {
+				that.sliderMoveDrawLeft = 5 + left + 'px';
+				that.sliderMoveLeft = left + 'px';
+				that.sliderX = 5 + left;
+			}
+		},
+		sliderEnd(){
+			this.check(this.sliderKey, this.sliderX);
+		},
+		sliderStart(e) {
+			var that = this
+			const slider = e.target // 获取目标元素
+			// 算出鼠标相对元素的位置
+			that.sliderMoveX = e.clientX - slider.offsetLeft
+			
+			document.onmousemove = (e) => {
+				const left = e.clientX - that.sliderMoveX
+				if (left >= 20 && left <= 280) {
+					//   slider.style.left = left + 'px'
+					that.sliderMoveDrawLeft = 5 + left + 'px';
+					that.sliderMoveLeft = left + 'px';
+					that.sliderX = 5 + left;
+				}
+			}
+			
+			document.onmouseup = () => {
+				document.onmousemove = null
+				document.onmouseup = null
+				this.check(this.sliderKey, this.sliderX);
+			}
+		}
   }
 }
 </script>
 
 <style>
+a + a {
+	margin-left: 10px;
+}
 /* 弹窗开始  */
 .lang-dialog__wrapper {
   position: fixed;
@@ -293,6 +270,7 @@ export default {
   height: 100%;
   background: rgba(0, 0, 0, .5);
   text-align: left;
+  z-index: 88888888;
 }
 
 .lang-dialog {
@@ -566,7 +544,6 @@ export default {
 }
 
 .lang-tips-item {
-  display: none;
   position: fixed;
   font-size: 14px;
   color: #525252;
@@ -576,6 +553,7 @@ export default {
   background: white;
   padding: 7px 10px;
   border-radius: 4px;
+	margin-left: -8px;
 }
 
 .lang-tips-left {
@@ -596,7 +574,6 @@ export default {
 
 .lang-tips-bottom {
   margin-top: 50px;
-  margin-left: 0;
 }
 
 .lang-tips-bottom:after {

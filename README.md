@@ -1,5 +1,5 @@
 # vue-captcha
-配合仓库 [poster](https://github.com/kkokk/poster) 一起使用的行为验证 vue 版本，目前版本是 1.0.0
+配合仓库 [poster](https://gitee.com/langlanglang/poster) 一起使用的行为验证 vue 版本
 
 ## 使用文档
 
@@ -13,6 +13,28 @@ yarn add @kkokk/captcha
 npm uninstall @kkokk/captcha
 yarn remove @kkokk/captcha
 ```
+
+### Attributes
+| 属性名      | 类型      | 默认值                                                       | 说明       |
+|----------|---------|-----------------------------------------------------------|----------|
+| visible  | Boolean | false                                                     | 开关       |
+| options  | Object  | { sliderImg: '背景图', sliderKey: '验证key', sliderY: '滑块高度' } | 参数       |
+| loading  | Boolean  | false                                                     | 加载状态     |
+| title  | String  | 滑块安全验证                                                  | 标题     |
+| tips  | String  | 拖动下方滑块完成拼图                                            | 提示     |
+| successText  | String  | 验证成功                                                | 成功提示     |
+| errorText  | String  | 是不是太难了，咱换一个                                      | 错误提示     |
+| question  | String  | 拖动滑块完成拼图，欢迎提建议！                                | 问题提示     |
+
+### Events
+| 事件名称      | 说明          | 回调参数                                                         |
+|----------|-------------|--------------------------------------------------------------|
+| check  | 检查是否正确的回调函数 | sliderKey, sliderX, done, error （验证需要的key, 移动距离, 完成回调, 错误回调） |
+| close  | 弹窗关闭回调函数    | -                                                            |
+| refresh  | 刷新回调函数      | -                                                            |
+| error  | 错误回调函数      | -                                                            |
+
+### 使用
 ```js
 // main.js 引入
 
@@ -32,10 +54,21 @@ Vue.use(Captcha)
       @refresh="getSliderOptions"
       @error="getSliderOptions"
     >
-      <span slot="title">自定义标题-安全验证</span>
-      <span slot="successText">自定义成功提示-登录中</span>
-      <span slot="errorText">自定义错误提示-是不是太难了换一个</span>
-      <span slot="tips">自定义提示拖动下方滑块完成拼图</span>
+      <!-- vue2 -->
+      <view slot="title">自定义标题-安全验证</view>
+      <view slot="successText">自定义成功提示-登录中</view>
+      <view slot="errorText">自定义错误提示-是不是太难了换一个</view>
+      <view slot="tips">自定义提示拖动下方滑块完成拼图</view>
+      <!-- <view slot="question">自定义提示</view> -->
+      <!-- vue2 -->
+        
+      <!-- vue3 -->
+      <template #title>自定义标题-安全验证</template>
+      <template #successText>自定义成功提示-登录中</template>
+      <template #errorText>自定义错误提示-是不是太难了换一个</template>
+      <template #tips>自定义提示拖动下方滑块完成拼图</template>
+      <!-- <template #question>自定义提示</template> -->
+      <!-- vue3 -->
     </slider-captcha> 
   </div>
 </template>
@@ -101,7 +134,7 @@ export default {
             xhr.onload = function() {
               resolve(obj.success(JSON.parse(this.responseText)))
             };
-            xhr.onError= function () {
+            xhr.onerror= function () {
                     reject(obj.error({
                         status: this.status,
                         statusText: xhr.statusText
